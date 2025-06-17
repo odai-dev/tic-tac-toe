@@ -29,13 +29,8 @@ const gameboard = {
     ]
 }
 
-function Player(name, marker) {
-    if(!new.target) {
-        throw Error("You must use the 'new' operator to call the constructor");
-    }
-    this.name = name;
-    this.marker = marker;
-}
+
+const Player = (name, marker) => ({name, marker})
 
 const player1 = new Player("Odai", "X");
 const player2 = new Player("Ali", "O");
