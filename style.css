@@ -1,0 +1,18 @@
+.game-container {
+    width: 500px;
+    margin: auto;
+    text-align: center;
+}
+.game-board {
+    width: 230px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin: auto;
+   
+}
+.cell {
+    width: 75px;
+    border: 1px solid;
+    height: 60px;
+}

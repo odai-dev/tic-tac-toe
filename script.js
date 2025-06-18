@@ -1,8 +1,8 @@
 const Gameboard = (() => {
     const board = [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""]
+        ["X", "O", "O"],
+        ["O", "X", "X"],
+        ["X", "O", "O"]
     ];
     const markCell = (row, col, marker) => {
         
@@ -42,8 +42,6 @@ const Player = (name, marker) => ({name, marker})
 
 const player1 =  Player("Odai", "X");
 const player2 =  Player("Ali", "O");
-
-
 
 const gameController = (() => {
     let currentPlayer = player1;
@@ -86,3 +84,18 @@ const gameController = (() => {
 }) ();
     
 
+const renderGameContent = (() => {
+    const gameBoardElement = document.querySelector(".game-board")
+    const cells = document.querySelectorAll(".cell")
+    const board = Gameboard.getBoard();
+
+    
+    
+    board.forEach((row, rowIndex) => {
+        row.forEach((value, colIndex) => {
+            const cellIndex = rowIndex * 3 + colIndex;
+            cells[cellIndex].innerHTML = value;
+        })
+    })
+    
+})();
