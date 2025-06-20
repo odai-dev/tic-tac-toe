@@ -1,14 +1,16 @@
 const Gameboard = (() => {
     const board = [
-        ["X", "O", "O"],
-        ["O", "X", "X"],
-        ["X", "O", "O"]
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""]
     ];
     const markCell = (row, col, marker) => {
         
         if (board[row][col] === "") {
             board[row][col] = marker;
-        }  
+            return true;
+        }
+        return false;
     };
 
     const winningCombinations = [
@@ -43,7 +45,7 @@ const Player = (name, marker) => ({name, marker})
 const player1 =  Player("Odai", "X");
 const player2 =  Player("Ali", "O");
 
-const gameController = (() => {
+const GameController = (() => {
     let currentPlayer = player1;
     let gameOver = false;
 
@@ -75,27 +77,47 @@ const gameController = (() => {
     
     const placeMark = (row, col) => {
         console.log(`${currentPlayer.name}' turn`);
-        Gameboard.markCell(row, col, currentPlayer.marker)
-        checkWinner()
-        changePlayer();
+        if(Gameboard.markCell(row, col, currentPlayer.marker)) {
+            checkWinner()
+            changePlayer();
+        } else {
+            console.log("Spot taken!");
+        }
+        
     }
 
     return {placeMark};
 }) ();
     
 
-const renderGameContent = (() => {
-    const gameBoardElement = document.querySelector(".game-board")
-    const cells = document.querySelectorAll(".cell")
-    const board = Gameboard.getBoard();
+const RenderGameContent = (() => {
+    const renderBoard = () => {
+        const board = Gameboard.getBoard();
+        const cells = document.querySelectorAll(".cell");
 
-    
-    
-    board.forEach((row, rowIndex) => {
-        row.forEach((value, colIndex) => {
-            const cellIndex = rowIndex * 3 + colIndex;
-            cells[cellIndex].innerHTML = value;
-        })
-    })
-    
+        board.forEach((row, rowIndex) => {
+            row.forEach((value, colIndex) => {
+                const cellIndex = rowIndex * 3 + colIndex;
+                cells[cellIndex].innerHTML = value;
+                cells[cellIndex].setAttribute("data-row", rowIndex);
+                cells[cellIndex].setAttribute("data-col", colIndex);
+            });
+        });
+    };
+    renderBoard();
+    return {renderBoard};
+})();
+
+const IntractWithBoard = (() => {
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach(cell => cell.addEventListener('click', () => {
+        console.log(cell)
+        const row = cell.dataset.row;
+        const col = cell.dataset.col;
+        console.log(col);
+        console.log(row)
+        GameController.placeMark(row,col)
+        RenderGameContent.renderBoard();
+    }))
+
 })();
