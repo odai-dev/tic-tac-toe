@@ -8,6 +8,7 @@ const Gameboard = (() => {
         
         if (board[row][col] === "") {
             board[row][col] = marker;
+            console.log(board);
             return true;
         }
         return false;
@@ -40,18 +41,37 @@ const Gameboard = (() => {
 })();
 
 
-const Player = (name, marker) => ({name, marker})
+const Player = (name, marker) => ({name, marker});
 
-const player1 =  Player("Odai", "X");
-const player2 =  Player("Ali", "O");
+const player1 =  Player("", "X");
+const player2 =  Player("", "O");
+
+const form = document.querySelector("#form");
+const resetBtn = document.querySelector(".reset-btn");
+
+form.addEventListener('submit', event => {
+    event.preventDefault();
+    const player1Name = document.querySelector("#player1").value;
+    const player2Name = document.querySelector("#player2").value;
+    if(player1Name && player2Name) {
+        player1.name = player1Name;
+        player2.name = player2Name;
+        form.classList.add("hide-form");   
+        resetBtn.classList.remove("hide-btn");
+        resetBtn.textContent = "Start Game";
+    }
+})
+
+
+const status = document.querySelector("#status");
 
 const GameController = (() => {
     let currentPlayer = player1;
-    let gameOver = false;
+    let gameOver = true;
 
     const changePlayer = () => {
         currentPlayer = currentPlayer === player1 ? player2 :  player1;
-    };
+    }
 
     const checkWinner = () => {
         const board  = Gameboard.getBoard();
@@ -67,31 +87,63 @@ const GameController = (() => {
             const cellC = board[r2][c2];
 
             if (cellA && cellA === cellB && cellB === cellC){
-                console.log(`${currentPlayer.name}' Win`);
+                
+                console.log(`${currentPlayer.name} Wins`);
+                status.textContent = `${currentPlayer.name} Wins`;
+                gameOver = true;
                 return true;
             }
         }
+        const isDraw = board.flat().every(cell => cell !== "");
+    if (isDraw) {
+        status.textContent = "It's a draw!";
+        gameOver = true;
+        return true;
+    }
         return false;
-        
     }
     
+
+    
     const placeMark = (row, col) => {
-        console.log(`${currentPlayer.name}' turn`);
+        if(GameController.getGameOver()) return;
         if(Gameboard.markCell(row, col, currentPlayer.marker)) {
-            checkWinner()
-            changePlayer();
+            if(!checkWinner()){
+                changePlayer();
+            }
         } else {
             console.log("Spot taken!");
         }
-        
+    }
+    
+    const resetGame = () => {
+        const board = Gameboard.getBoard();
+        for (let r=0; r<3; r++) {
+            for(let c = 0; c<3; c++) {
+                board[r][c] = "";
+            }
+        }
+        RenderGameContent.renderBoard();
+        status.textContent = `${player1.name}'s Turn`;
+        currentPlayer = player1;
+        gameOver=false;
+
+        resetBtn.textContent = "Restart Game"; 
+    }
+    
+    resetBtn.onclick = () => {
+        resetGame();
     }
 
-    return {placeMark};
+    
+
+    return {placeMark, getCurrentPlayerName: ()=> currentPlayer.name, getGameOver: () => gameOver};
 }) ();
     
 
 const RenderGameContent = (() => {
     const renderBoard = () => {
+        
         const board = Gameboard.getBoard();
         const cells = document.querySelectorAll(".cell");
 
@@ -103,21 +155,24 @@ const RenderGameContent = (() => {
                 cells[cellIndex].setAttribute("data-col", colIndex);
             });
         });
+        if(!GameController.getGameOver()) {
+            status.textContent = `${GameController.getCurrentPlayerName()}'s Turn`;
+            console.log(`${GameController.getCurrentPlayerName()}' turn`);
+        }
+        
+        
     };
     renderBoard();
     return {renderBoard};
 })();
 
-const IntractWithBoard = (() => {
+const InteractWithBoard  = (() => {
     const cells = document.querySelectorAll(".cell");
     cells.forEach(cell => cell.addEventListener('click', () => {
-        console.log(cell)
-        const row = cell.dataset.row;
-        const col = cell.dataset.col;
-        console.log(col);
-        console.log(row)
+        if (GameController.getGameOver()) return;
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
         GameController.placeMark(row,col)
         RenderGameContent.renderBoard();
     }))
-
 })();
